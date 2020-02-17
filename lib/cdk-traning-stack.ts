@@ -56,5 +56,44 @@ export class TadaEKSCluster extends cdk.Stack {
         kubeletExtraArgs: '--node-labels foo=bar'
       },
     });
+    cluster.addCapacity('MonitorNodeGroup', {
+      maxCapacity: 1,
+      instanceType: new ec2.InstanceType('t2.medium'),
+      bootstrapOptions: {
+        kubeletExtraArgs: '--node-labels foo=bar'
+      },
+    });
+    cluster.addCapacity('BusyNodeGroup', {
+      maxCapacity: 1,
+      instanceType: new ec2.InstanceType('t2.medium'),
+      bootstrapOptions: {
+        kubeletExtraArgs: '--node-labels foo=bar'
+      },
+    });
+  }
+}
+
+
+export class TadaEKSClusterNightly extends cdk.Stack {
+  constructor(scope: cdk.Construct, id: string, props: EKSClusteProps) {
+    super(scope, id, props);
+
+    const clusterAdmin = new iam.Role(this, 'AdminRole', {
+      assumedBy: new iam.AccountRootPrincipal()
+    });
+
+    const cluster = new eks.Cluster(this, 'Cluster', {
+      vpc: props.vpc,
+      mastersRole: clusterAdmin,
+      defaultCapacity: 0,
+    });
+
+    cluster.addCapacity('DefaultNodeGroup', {
+      maxCapacity: 1,
+      instanceType: new ec2.InstanceType('t2.medium'),
+      bootstrapOptions: {
+        kubeletExtraArgs: '--node-labels foo=bar'
+      },
+    });
   }
 }
